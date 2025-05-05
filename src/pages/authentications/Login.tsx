@@ -85,7 +85,7 @@ export default function Login() {
 
       <div className="hidden sm:flex  h-full w-1/2 rounded-tl-4xl rounded-bl-4xl  shadow-2xl">
         <img
-          src="/public/login-background.png"
+          src="/login-background.png"
           alt="Login Page Background Image"
           className="w-full h-full object-cover rounded-tl-4xl rounded-bl-4xl "
         />
