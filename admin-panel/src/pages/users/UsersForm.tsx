@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, LogOut } from "lucide-react";
 import client from "../../api/client";
 import { AuthContext } from "../../context/AuthContext";
 import { css } from "@emotion/react";
@@ -97,16 +97,9 @@ export default function UserForm() {
           >
             <ArrowLeft size={20} className="text-white" />
           </button>
-          <button
-            onClick={logout}
-            className="p-2 bg-red-500/80 rounded-full hover:bg-red-600/90 transition"
-            aria-label="Logout"
-          >
-            Log Out
-          </button>
         </div>
 
-        <h1 className="text-2xl font-semibold text-white text-center mb-6">
+        <h1 className="text-2xl font-semibold text-white text-center mb-6 font-playwrite">
           {isEdit ? "Edit User" : "Create User"}
         </h1>
 
@@ -126,7 +119,7 @@ export default function UserForm() {
                 required
                 className="
                   w-full px-4 py-2
-                  bg-white/30 text-white
+                  bg-black/30 text-white
                   placeholder-white/70
                   border border-white/50
                   rounded-lg
@@ -147,7 +140,7 @@ export default function UserForm() {
                 required
                 className="
                   w-full px-4 py-2
-                  bg-white/30 text-white
+                  bg-black/30 text-white
                   placeholder-white/70
                   border border-white/50
                   rounded-lg
@@ -174,7 +167,7 @@ export default function UserForm() {
                 onChange={handleChange}
                 className="
                   w-full px-4 py-2
-                  bg-white/30 text-white
+                  bg-black/30 text-white
                   placeholder-white/70
                   border border-white/50
                   rounded-lg
@@ -193,7 +186,7 @@ export default function UserForm() {
                 onChange={handleChange}
                 className="
                   w-full px-4 py-2
-                  bg-white/30 text-white
+                  bg-black/30 text-white
                   border border-white/50
                   rounded-lg
                   focus:outline-none focus:ring-2 focus:ring-white/80

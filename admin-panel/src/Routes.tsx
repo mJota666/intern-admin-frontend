@@ -11,6 +11,7 @@ import Upload from "./pages/Upload";
 import ContentForm from "./pages/contents/ContentsForm";
 import ManagementLayout from "./layouts/ManagementLayout";
 import PreviewContent from "./pages/contents/PreviewContent";
+import ProfilePage from "./pages/profile/ProfilePage";
 
 // import Login from "./pages/Login";
 // import UserForm from "./pages/users/UserForm";
@@ -40,7 +41,9 @@ export default function AppRoutes() {
 function Authenticated() {
   return (
     <Routes>
-      <Route path="dashboard" element={<Dashboard />} />
+      <Route element={<ManagementLayout title="Home Page" />}>
+        <Route path="dashboard" element={<Dashboard />} />
+      </Route>
       <Route element={<ManagementLayout title="Content Management" />}>
         <Route path="contents" element={<ContentsList />} />
         <Route path="contents/new" element={<ContentForm />} />
@@ -52,7 +55,7 @@ function Authenticated() {
         <Route path="users/new" element={<UsersForm />} />
         <Route path="users/:id" element={<UsersForm />} />
       </Route>
-
+      <Route path="profile" element={<ProfilePage />} />
       {/* Redirect unknown to dashboard */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

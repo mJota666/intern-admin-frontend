@@ -36,8 +36,6 @@ export default function ContentsList() {
     >
       {/* Top controls */}
       <div className="flex justify-between items-center p-4">
-        {/* Back Button */}
-
         {/* Create New Content */}
         <Link
           to="/contents/new"
@@ -65,25 +63,31 @@ export default function ContentsList() {
             No contents available.
           </div>
         ) : (
-          <ul className="divide-y divide-white/30">
-            {contents.map((c, i) => (
-              <li
-                key={c._id}
-                className="py-3 hover:bg-white/10 transition rounded"
-              >
-                <Link
-                  to={`/contents/${c._id}`}
-                  className="grid grid-cols-[50px_1fr_auto] px-4 items-center"
-                >
-                  <span className="font-medium">{i + 1}</span>
-                  <span className="font-medium truncate">{c.title}</span>
-                  <span className="text-sm text-gray-200 justify-self-end">
-                    {new Date(c.updatedAt).toLocaleString()}
-                  </span>
+          <table className="w-full table-auto border-collapse text-white">
+            <thead>
+              <tr className="border-b border-white/30 grid grid-cols-[50px_1fr_auto]">
+                <th className="p-3 text-left"></th>
+                <th className="p-3 text-left">Article</th>
+                <th className="p-3 text-left">Updated at</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/20">
+              {contents.map((c, index) => (
+                <Link to={`/contents/${c._id}`}>
+                  <tr
+                    key={c._id}
+                    className="hover:bg-white/10 transition grid grid-cols-[50px_1fr_auto]"
+                  >
+                    <td className="p-3">{index}</td>
+                    <td className="p-3">{c.title}</td>
+                    <td className="p-3">
+                      {new Date(c.updatedAt).toLocaleString()}
+                    </td>
+                  </tr>
                 </Link>
-              </li>
-            ))}
-          </ul>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>
