@@ -18,7 +18,7 @@ const glassCard = css`
 `;
 
 export default function ProfilePage() {
-  const { user, logout } = useContext(AuthContext)!;
+  const { user } = useContext(AuthContext)!;
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();

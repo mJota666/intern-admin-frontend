@@ -1,9 +1,9 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 export default function Dashboard() {
-  const { user, logout } = useContext(AuthContext)!;
+  const { user } = useContext(AuthContext)!;
   console.log("User Information:", user);
 
   return (

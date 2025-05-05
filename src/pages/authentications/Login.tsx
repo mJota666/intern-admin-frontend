@@ -4,7 +4,6 @@ import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import client from "../../api/client";
 import { AuthContext } from "../../context/AuthContext";
-import { css } from "@emotion/react";
 import InputBox from "../../components/InputBox";
 import Button from "../../components/Button";
 

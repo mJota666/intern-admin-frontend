@@ -1,9 +1,8 @@
 /** @jsxImportSource @emotion/react */
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, LogOut } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import client from "../../api/client";
-import { AuthContext } from "../../context/AuthContext";
 import { css } from "@emotion/react";
 
 interface UserFormData {
@@ -17,7 +16,6 @@ export default function UserForm() {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id) && id !== "new";
   const navigate = useNavigate();
-  const { logout, user } = useContext(AuthContext)!;
 
   const [form, setForm] = useState<UserFormData>({
     email: "",

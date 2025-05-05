@@ -95,7 +95,7 @@ export default function ContentForm() {
     setBlocks((prev) => {
       const arr = [...prev];
       const [moved] = arr.splice(result.source.index, 1);
-      arr.splice(result.destination.index, 0, moved);
+      arr.splice(result.destination!.index, 0, moved);
       return arr;
     });
   };

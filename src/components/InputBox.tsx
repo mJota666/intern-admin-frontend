@@ -1,4 +1,4 @@
-import { InputBoxProps } from "../interfaces/InputBoxProps";
+import { InputBoxProps } from "./InputBoxProps";
 
 export default function InputBox({
   id,

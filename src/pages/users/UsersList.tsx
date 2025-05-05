@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, ArrowLeft, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import client from "../../api/client";
 import { css } from "@emotion/react";
 import { AuthContext } from "../../context/AuthContext";
@@ -10,9 +10,8 @@ export default function UsersList() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useContext(AuthContext);
-  console.log("User ne:");
-  console.log(user);
+  const { user } = useContext(AuthContext)!;
+
   const navigate = useNavigate();
   // hide scrollbar
   const hideScrollBar = css`
@@ -34,7 +33,7 @@ export default function UsersList() {
 
   // Handle user deletion
   const handleDelete = (userId: string) => {
-    if (userId != user.sub) {
+    if (userId != user!.sub) {
       if (window.confirm("Are you sure you want to delete this user?")) {
         client
           .delete(`/users/${userId}`)
@@ -54,7 +53,7 @@ export default function UsersList() {
   };
   // navigate to edit
   const handleEdit = (userId: string) => {
-    if (userId != user.sub) {
+    if (userId != user!.sub) {
       navigate(`/users/${userId}`);
     } else {
       alert("Cannot edit your account !");

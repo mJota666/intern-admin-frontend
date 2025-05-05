@@ -1,5 +1,6 @@
+/** @jsxImportSource @emotion/react */
 import { ArrowLeft, LogOut, User } from "lucide-react";
-import { ReactNode, useContext } from "react";
+import { useContext } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { css } from "@emotion/react";

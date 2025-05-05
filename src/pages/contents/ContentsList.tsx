@@ -1,8 +1,8 @@
 /** @jsxImportSource @emotion/react */
 
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Trash } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Plus, Trash } from "lucide-react";
 import client from "../../api/client";
 import { Article } from "../../interfaces/Article";
 import { css } from "@emotion/react";
@@ -11,7 +11,6 @@ export default function ContentsList() {
   const [contents, setContents] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   // hide scrollbar
   const hideScrollBarCss = css`
@@ -42,7 +41,7 @@ export default function ContentsList() {
         setContents((prevContents) =>
           prevContents.filter((content) => content._id !== id)
         );
-      } catch (err) {
+      } catch (err: any) {
         setError(err.response?.data?.message || "Failed to delete content");
       }
     }

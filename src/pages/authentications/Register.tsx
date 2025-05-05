@@ -8,7 +8,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("admin");
+  const role = "admin";
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 

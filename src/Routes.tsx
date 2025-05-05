@@ -7,7 +7,6 @@ import Dashboard from "./pages/Dashboard";
 import ContentsList from "./pages/contents/ContentsList";
 import UsersList from "./pages/users/UsersList";
 import UsersForm from "./pages/users/UsersForm";
-import Upload from "./pages/Upload";
 import ContentForm from "./pages/contents/ContentsForm";
 import ManagementLayout from "./layouts/ManagementLayout";
 import PreviewContent from "./pages/contents/PreviewContent";
