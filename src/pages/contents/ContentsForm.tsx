@@ -1,5 +1,6 @@
 /** @jsxImportSource @emotion/react */
-import React, { useEffect, useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import client from "../../api/client";
 import {
@@ -115,6 +116,14 @@ export default function ContentForm() {
   // submit handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const confirmAction = window.confirm(
+      isEdit
+        ? "Are you sure you want to update this content?"
+        : "Are you sure you want to create this content?"
+    );
+
+    if (!confirmAction) return; // If user cancels, stop the form submission
+
     setError(null);
     setSaving(true);
     try {
@@ -124,7 +133,7 @@ export default function ContentForm() {
         : await client.post("/contents", payload);
       const finalId = isEdit ? id! : res.data._id;
       await client.post(`/contents/${finalId}/submit`);
-      // navigate("/contents");
+      navigate("/contents");
     } catch (e: any) {
       setError(e.response?.data?.message || "Save failed");
     } finally {

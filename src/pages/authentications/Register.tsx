@@ -31,7 +31,7 @@ export default function Register() {
     <div className="w-[100vw] h-[100vh] flex flex-row items-center justify-center ">
       <div className="hidden sm:flex h-full w-1/2 rounded-tr-4xl rounded-br-4xl   shadow-2xl">
         <img
-          src="/public/register-background.png"
+          src="/register-background.png"
           alt="Register Page Background Image"
           className="w-full h-full object-cover rounded-tr-4xl rounded-br-4xl "
         />

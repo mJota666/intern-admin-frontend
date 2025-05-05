@@ -17,7 +17,7 @@ export default function UserForm() {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id) && id !== "new";
   const navigate = useNavigate();
-  const { logout } = useContext(AuthContext)!;
+  const { logout, user } = useContext(AuthContext)!;
 
   const [form, setForm] = useState<UserFormData>({
     email: "",

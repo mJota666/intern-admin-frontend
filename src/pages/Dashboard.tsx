@@ -12,7 +12,7 @@ export default function Dashboard() {
         Welcome, {user?.name}
       </h1>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className=" gap-6 flex justify-center items-center">
         {user?.role === "admin" && (
           <Link
             to="/users"
