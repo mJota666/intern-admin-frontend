@@ -50,7 +50,7 @@ export default function ProfilePage() {
     <div
       className="
         w-[100vw] h-[100vh] overflow-hidden
-        bg-[url('dashboard-background.png')] bg-cover bg-center
+        bg-[url('/dashboard-background.png')] bg-cover bg-center
         relative
       "
     >

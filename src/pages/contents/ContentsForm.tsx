@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import client from "../../api/client";
 import {
   DragDropContext,
@@ -23,6 +23,7 @@ export default function ContentForm() {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id && id !== "new");
   const navigate = useNavigate();
+  const location = useLocation(); // to get state passed through navigation
 
   const [title, setTitle] = useState("");
   const [blocks, setBlocks] = useState<Block[]>([]);
@@ -39,22 +40,31 @@ export default function ContentForm() {
     scrollbar-width: none;
   `;
 
-  // load existing content
+  // Load content from localStorage or API
   useEffect(() => {
     if (!isEdit) return;
-    setLoading(true);
-    client
-      .get(`/contents/${id}`)
-      .then(({ data }) => {
-        setTitle(data.title);
-        setBlocks(data.blocks);
-        setStatus(data.status);
-      })
-      .catch(() => setError("Failed to load content"))
-      .finally(() => setLoading(false));
-  }, [id, isEdit]);
 
-  // block operations
+    // Check if there's data in the state or localStorage
+    if (location.state) {
+      setTitle(location.state.title);
+      setBlocks(location.state.blocks);
+      setStatus(location.state.status);
+    } else {
+      // Load from the API if not in state
+      setLoading(true);
+      client
+        .get(`/contents/${id}`)
+        .then(({ data }) => {
+          setTitle(data.title);
+          setBlocks(data.blocks);
+          setStatus(data.status);
+        })
+        .catch(() => setError("Failed to load content"))
+        .finally(() => setLoading(false));
+    }
+  }, [id, isEdit, location.state]);
+
+  // Block operations
   const addBlock = (type: Block["type"]) =>
     setBlocks((prev) => [
       ...prev,
@@ -78,6 +88,7 @@ export default function ContentForm() {
         i === idx && b.type === "text" ? { ...b, data: { ...b.data, body } } : b
       )
     );
+
   const updateBlock = (idx: number, data: string) =>
     setBlocks((prev) =>
       prev.map((b, i) => {
@@ -133,6 +144,11 @@ export default function ContentForm() {
         : await client.post("/contents", payload);
       const finalId = isEdit ? id! : res.data._id;
       await client.post(`/contents/${finalId}/submit`);
+
+      // Store the updated content in localStorage to persist it on page reload
+      const contentState = { title, blocks, status };
+      localStorage.setItem("contentState", JSON.stringify(contentState));
+
       navigate("/contents");
     } catch (e: any) {
       setError(e.response?.data?.message || "Save failed");
@@ -142,7 +158,7 @@ export default function ContentForm() {
   };
 
   return (
-    <div className="w-full h-full overflow-auto  p-2" css={hideScrollCss}>
+    <div className="w-full h-full overflow-auto p-2" css={hideScrollCss}>
       <div className="flex gap-4">
         {/* Preview */}
         <button
@@ -152,10 +168,7 @@ export default function ContentForm() {
               state: { title, blocks, status },
             })
           }
-          className="
-          p-2 bg-black/30 rounded-lg hover:bg-black/40 transition
-          flex items-center gap-2 text-white mb-4 cursor-pointer
-        "
+          className="p-2 bg-black/30 rounded-lg hover:bg-black/40 transition flex items-center gap-2 text-white mb-4 cursor-pointer"
         >
           Preview
         </button>
@@ -163,10 +176,7 @@ export default function ContentForm() {
         <button
           onClick={() => navigate(-1)}
           aria-label="Go back"
-          className="
-          p-2 bg-white/30 rounded-lg hover:bg-white/40 transition
-          flex items-center gap-2 text-white mb-4 cursor-pointer
-        "
+          className="p-2 bg-white/30 rounded-lg hover:bg-white/40 transition flex items-center gap-2 text-white mb-4 cursor-pointer"
         >
           <ArrowLeft size={20} className="text-white" /> Back
         </button>
@@ -194,15 +204,7 @@ export default function ContentForm() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="
-                w-full px-4 py-2
-                bg-black/30 text-white
-                placeholder-white/70
-                border border-white/50
-                rounded-lg
-                focus:outline-none focus:ring-2 focus:ring-white/80
-                transition
-              "
+              className="w-full px-4 py-2 bg-black/30 text-white placeholder-white/70 border border-white/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/80 transition"
               placeholder="Enter a title"
             />
           </div>
@@ -228,24 +230,13 @@ export default function ContentForm() {
                           ref={p.innerRef}
                           {...p.draggableProps}
                           {...p.dragHandleProps}
-                          className="
-                            relative p-4
-                            bg-white/30 text-white
-                            border border-white/50
-                            rounded-lg shadow
-                          "
+                          className="relative p-4 bg-white/30 text-white border border-white/50 rounded-lg shadow"
                         >
                           {/* Remove Block */}
                           <button
                             type="button"
                             onClick={() => removeBlock(idx)}
-                            className="
-                              absolute top-2 right-2
-                              text-white font-bold bg-red-500
-                              rounded-full  w-6 h-6
-                              hover:bg-red-700 transition
-                              cursor-pointer
-                            "
+                            className="absolute top-2 right-2 text-white font-bold bg-red-500 rounded-full  w-6 h-6 hover:bg-red-700 transition cursor-pointer"
                           >
                             &times;
                           </button>
@@ -263,13 +254,7 @@ export default function ContentForm() {
                                   onChange={(e) =>
                                     updateTextHeader(idx, e.target.value)
                                   }
-                                  className="
-                                    w-full px-3 py-2
-                                    bg-black/30 text-white
-                                    border border-white/50
-                                    rounded-lg
-                                    focus:outline-none focus:ring-2 focus:ring-white/80
-                                  "
+                                  className="w-full px-3 py-2 bg-black/30 text-white border border-white/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/80"
                                   placeholder="Section header"
                                 />
                               </div>
@@ -282,13 +267,7 @@ export default function ContentForm() {
                                   onChange={(e) =>
                                     updateTextBody(idx, e.target.value)
                                   }
-                                  className="
-                                    w-full px-3 py-2
-                                    bg-black/30 text-white
-                                    border border-white/50
-                                    rounded-lg
-                                    focus:outline-none focus:ring-2 focus:ring-white/80
-                                  "
+                                  className="w-full px-3 py-2 bg-black/30 text-white border border-white/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/80"
                                   rows={4}
                                   placeholder="Section body"
                                 />
@@ -333,13 +312,7 @@ export default function ContentForm() {
                                 onChange={(e) =>
                                   updateBlock(idx, e.target.value)
                                 }
-                                className="
-                                  w-full px-3 py-2
-                                  bg-black/30 text-white
-                                  border border-white/50
-                                  rounded-lg
-                                  focus:outline-none focus:ring-2 focus:ring-white/80
-                                "
+                                className="w-full px-3 py-2 bg-black/30 text-white border border-white/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/80"
                                 placeholder="https://..."
                               />
                               {blk.data && (
@@ -387,7 +360,8 @@ export default function ContentForm() {
           </div>
 
           {/* Status */}
-          <div>
+          {/* Commented out because it's handled in localStorage or state passed via navigation */}
+          {/* <div>
             <label className="block text-white mb-1 font-medium">Status</label>
             <select
               value={status}
@@ -398,7 +372,7 @@ export default function ContentForm() {
               <option value="submitted">Submitted</option>
               <option value="published">Published</option>
             </select>
-          </div>
+          </div> */}
 
           {/* Action Buttons */}
           <div className="flex justify-end space-x-2">
