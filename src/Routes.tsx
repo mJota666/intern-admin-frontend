@@ -18,7 +18,8 @@ import ProfilePage from "./pages/profile/ProfilePage";
 // import Upload from "./pages/Upload";
 
 export default function AppRoutes() {
-  const auth = React.useContext(AuthContext)!;
+  const { user } = React.useContext(AuthContext)!;
+  const token = localStorage.getItem("token");
 
   return (
     <BrowserRouter>
@@ -29,7 +30,7 @@ export default function AppRoutes() {
         <Route
           path="/*"
           element={
-            auth.user ? <Authenticated /> : <Navigate to="/login" replace />
+            user || token ? <Authenticated /> : <Navigate to="/login" replace />
           }
         />
       </Routes>
