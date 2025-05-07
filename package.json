@@ -18,6 +18,8 @@
     "autoprefixer": "^10.4.21",
     "axios": "^1.9.0",
     "bcryptjs": "^3.0.2",
+    "crypto-browserify": "^3.12.1",
+    "esbuild-wasm": "^0.25.4",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.503.0",
     "postcss": "^8.5.3",
