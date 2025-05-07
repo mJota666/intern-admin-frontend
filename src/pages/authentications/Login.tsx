@@ -36,7 +36,7 @@ export default function Login() {
         <div className="w-2/3 h-2/3  flex flex-col justify-center items-center ">
           {/* Header Field */}
           <h1 className="w-full h-1/3 flex text-[40px] justify-center items-center font-bold font-playwrite ">
-            Admin Loginn
+            Admin Loginnn
           </h1>
           <div className="w-full h-3/4 ">
             <form
