@@ -51,7 +51,9 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no alsp@minhnguyen28.workspace.opstech.org << 'EOF'
             cd /home/alsp/intern-admin-frontend
-            git pull origin main  # Pull the latest changes from the main branch
-            sudo docker-compose down  # Stop the existing containers
-            sudo docker-compose up -d # Restart containers with the updated build
+            git pull origin main  # Pull the latest changes
+            git log -1  # Show the latest commit
+            sudo docker-compose down -v  # Stop containers and remove volumes
+            sudo docker-compose build --no-cache  # Force rebuild without cache
+            sudo docker-compose up -d  # Start containers with the updated build
           EOF
