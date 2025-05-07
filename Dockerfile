@@ -1,22 +1,23 @@
-# Use an official Node.js runtime as a parent image
+# Use an official Node.js image
 FROM node:14
 
-# Set the working directory
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the current directory contents into the container
-COPY . .
+# Copy package.json and package-lock.json for npm install
+COPY package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Build the frontend for production
+# Build the admin frontend
 RUN npm run build
 
-# Serve the frontend (e.g., using a static server like serve)
+# Install a simple static file server
 RUN npm install -g serve
 
-# Expose the frontend port
+# Expose port 8081 for admin frontend
 EXPOSE 8081
 
+# Command to serve the app
 CMD ["serve", "-s", "build", "-l", "8081"]
