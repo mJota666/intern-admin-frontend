@@ -29,4 +29,4 @@ RUN npm install -g serve
 EXPOSE 8081
 
 # Command to serve the app using the "serve" command on port 8081
-CMD ["serve", "-s", "build", "-l", "8081"]
+CMD ["serve", "-s", "dist", "-l", "8081"]
