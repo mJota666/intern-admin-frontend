@@ -44,7 +44,15 @@ export default function PreviewContent() {
     >
       <div className="mt-4">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            state.isEdit
+              ? navigate(`/contents/${state.id}}`, {
+                  state: { title, blocks, status },
+                })
+              : navigate(`/contents/new`, {
+                  state: { title, blocks, status },
+                });
+          }}
           className="px-3 py-1 bg-white/30 hover:bg-white/40 text-white rounded transition"
         >
           &larr; Back

@@ -42,8 +42,6 @@ export default function ContentForm() {
 
   // Load content from localStorage or API
   useEffect(() => {
-    if (!isEdit) return;
-
     // Check if there's data in the state or localStorage
     if (location.state) {
       setTitle(location.state.title);
@@ -51,6 +49,7 @@ export default function ContentForm() {
       setStatus(location.state.status);
     } else {
       // Load from the API if not in state
+      if (!isEdit) return;
       setLoading(true);
       client
         .get(`/contents/${id}`)
@@ -165,7 +164,7 @@ export default function ContentForm() {
           type="button"
           onClick={() =>
             navigate("/preview", {
-              state: { title, blocks, status },
+              state: { title, blocks, status, id, isEdit },
             })
           }
           className="p-2 bg-black/30 rounded-lg hover:bg-black/40 transition flex items-center gap-2 text-white mb-4 cursor-pointer"
@@ -174,7 +173,7 @@ export default function ContentForm() {
         </button>
         {/* Back Button */}
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/contents")}
           aria-label="Go back"
           className="p-2 bg-white/30 rounded-lg hover:bg-white/40 transition flex items-center gap-2 text-white mb-4 cursor-pointer"
         >
