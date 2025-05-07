@@ -42,7 +42,7 @@ jobs:
       - name: Deploy to Droplet
         run: |
           ssh -o StrictHostKeyChecking=no alsp@minhnguyen28.workspace.opstech.org << 'EOF'
-            cd /path/to/your/admin-frontend
+            cd /home/alsp/intern-admin-frontend
             git pull origin main  # Pull the latest changes from the main branch
             sudo docker-compose down  # Stop the existing containers
             sudo docker-compose up -d # Restart containers with the updated build
