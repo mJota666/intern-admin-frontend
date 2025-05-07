@@ -1,0 +1,7 @@
+// example.test.js
+describe('Basic Jest test', () => {
+    it('should add two numbers correctly', () => {
+      expect(1 + 1).toBe(2);
+    });
+  });
+  
