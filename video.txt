@@ -1,1 +1,2 @@
-https://youtu.be/n9a8SFIQ5L8
+DEMO APP: https://youtu.be/n9a8SFIQ5L8
+DEMO CI/CD: https://youtu.be/-CuEWOeMsKM
