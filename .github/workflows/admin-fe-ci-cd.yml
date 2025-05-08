@@ -44,5 +44,5 @@ jobs:
           ssh -o StrictHostKeyChecking=no alsp@minhnguyen28.workspace.opstech.org << 'EOF'
             cd /home/alsp/intern-admin-frontend
             git pull origin main
-            docker compose up -d --build admin-frontend
+            docker-compose up -d --build admin-frontend
           EOF
