@@ -76,8 +76,8 @@ jobs:
           IMAGE: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/admin-frontend
           TAG: ${{ needs.build-and-push.outputs.tag }}
         run: |
-          ssh -o ServerAliveInterval=60 $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
-            cd $ADMIN_PATH
+          ssh -o StrictHostKeyChecking=no alsp@minhnguyen28.workspace.opstech.org << 'EOF'
+            cd /home/alsp/intern-admin-frontend
 
             # Pull the new, CI-built image
             docker pull $IMAGE:$TAG
