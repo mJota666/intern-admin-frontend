@@ -60,7 +60,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: webfactory/ssh-agent@v0.5.3
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
@@ -74,17 +75,15 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           ADMIN_PATH: ${{ secrets.ADMIN_PATH }}
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          IMAGE: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/admin-frontend
           TAG: ${{ needs.build-and-push.outputs.tag }}
         run: |
-          ssh -o ServerAliveInterval=60 $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
+          ssh -o ServerAliveInterval=60 $DEPLOY_USER@$DEPLOY_HOST << EOF
             cd $ADMIN_PATH
-            export DOCKERHUB_USERNAME=$DOCKERHUB_USERNAME
-            export TAG=$TAG
 
-            # Pull the new image
-            docker pull docker.io/$DOCKERHUB_USERNAME/admin-frontend:$TAG
+            # Pull the new, CI-built image
+            docker pull ${IMAGE}:${TAG}
 
-            # Redeploy only admin-frontend (now using image: …:${TAG})
-            sudo DOCKERHUB_USERNAME=$DOCKERHUB_USERNAME TAG=$TAG docker-compose up -d --no-deps admin-frontend
+            # Swap in only the admin-frontend service
+            sudo docker-compose up -d --no-deps admin-frontend
           EOF
