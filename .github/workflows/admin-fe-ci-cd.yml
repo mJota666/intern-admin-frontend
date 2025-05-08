@@ -68,6 +68,11 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Add Droplet to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
       - name: Pull & restart admin-frontend
         env:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
@@ -78,10 +83,6 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no alsp@minhnguyen28.workspace.opstech.org << 'EOF'
             cd /home/alsp/intern-admin-frontend
-
-            # Pull the new, CI-built image
             docker pull $IMAGE:$TAG
-
-            # Swap in only the admin-frontend service
             sudo docker-compose up -d --no-deps admin-frontend
           EOF

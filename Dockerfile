@@ -1,11 +1,23 @@
-# ─── Final Image: just serve CI-built files ──────────────────────────────────
+# ─── Builder Stage ────────────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Install deps, cached until package*.json changes
+COPY package*.json tsconfig*.json ./
+RUN npm ci
+
+# Copy source & build
+COPY . .
+RUN npm run build
+
+# ─── Runtime Stage ────────────────────────────────────────────────────────────
 FROM node:20-alpine AS runtime
 WORKDIR /app
 
-# Copy build output produced by CI (so your workflow must upload it to the build context)
-COPY dist/ ./dist
+# Only copy production files
+COPY --from=builder /app/dist ./dist
 
-# Install a lightweight static server
+# Install static file server
 RUN npm install -g serve
 
 EXPOSE 8081
