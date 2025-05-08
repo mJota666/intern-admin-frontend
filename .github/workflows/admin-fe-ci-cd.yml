@@ -42,7 +42,7 @@ jobs:
       - name: Deploy admin-frontend only
         run: |
           ssh -o StrictHostKeyChecking=no alsp@minhnguyen28.workspace.opstech.org << 'EOF'
-            cd /home/alsp
+            cd /home/alsp/intern-admin-frontend
             git pull origin main
             docker compose up -d --build admin-frontend
           EOF
