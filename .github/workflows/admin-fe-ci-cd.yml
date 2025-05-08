@@ -2,13 +2,15 @@ name: Admin Frontend CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+    paths:
+      - "intern-admin-frontend/**"
 
 jobs:
-  build:
+  build_and_deploy:
     runs-on: ubuntu-latest
-    outputs:
-      sha: ${{ steps.commit.outputs.sha }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,53 +21,33 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('intern-admin-frontend/**/package-lock.json') }}
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "20"
           cache: "npm"
 
       - name: Install dependencies
-        working-directory: intern-admin-frontend
         run: npm ci
+        working-directory: intern-admin-frontend
 
       - name: Run tests
-        working-directory: intern-admin-frontend
         run: npm test
-
-      - name: Build project
         working-directory: intern-admin-frontend
+
+      - name: Build the project
         run: npm run build
+        working-directory: intern-admin-frontend
 
-      - name: Capture commit SHA
-        id: commit
-        run: echo "::set-output name=sha::$(git rev-parse --short HEAD)"
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code (for path context)
-        uses: actions/checkout@v3
-
-      - name: Setup SSH agent
+      - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy admin-frontend
-        env:
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          APP_DIR: ${{ secrets.ADMIN_PATH }}
-          GIT_REF: ${{ needs.build.outputs.sha }}
+      - name: Deploy admin-frontend only
         run: |
-          ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
-            cd $APP_DIR
-            git fetch origin main
-            git checkout -f $GIT_REF
-            git reset --hard
-
-            # Rebuild & restart only the admin-frontend service
+          ssh -o StrictHostKeyChecking=no alsp@minhnguyen28.workspace.opstech.org << 'EOF'
+            cd /home/alsp
+            git pull origin main
             docker compose up -d --build admin-frontend
           EOF
