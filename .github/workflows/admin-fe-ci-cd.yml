@@ -49,10 +49,11 @@ jobs:
 
       - name: Deploy admin-frontend only
         run: |
-        ssh -o StrictHostKeyChecking=no alsp@… << 'EOF'
-          cd /home/alsp/intern-admin-frontend
-          git pull origin main
+          ssh -o StrictHostKeyChecking=no alsp@minhnguyen28.workspace.opstech.org << 'EOF'
+            cd /home/alsp/intern-admin-frontend
+            git pull origin main
 
-          sudo docker compose build admin-frontend
-          sudo docker compose up -d --no-deps admin-frontend
-        EOF
+            # Rebuild & restart only the admin-frontend service
+            sudo docker compose build admin-frontend
+            sudo docker compose up -d --no-deps admin-frontend
+          EOF
