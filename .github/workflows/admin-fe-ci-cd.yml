@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "intern-admin-frontend/**"
-      - ".github/workflows/admin-frontend-ci.yml"
 
 jobs:
   build_and_deploy:
@@ -14,44 +11,48 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Cache npm
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/intern-admin-frontend/package-lock.json') }}
+        uses: actions/checkout@v2
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v2
         with:
           node-version: "20"
-          cache: "npm"
 
       - name: Install dependencies
-        run: |
-          cd intern-admin-frontend
-          npm ci
+        run: npm install
 
       - name: Run tests
-        run: |
-          cd intern-admin-frontend
-          npm test
+        run: npm test
 
       - name: Build the project
-        run: |
-          cd intern-admin-frontend
-          npm run build
+        run: npm run build
 
-      - name: Set up SSH
+      - name: Set up SSH agent
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Install Docker and Fix Dependencies
+        run: |
+          # Remove existing containerd if there's a conflict
+          sudo apt-get remove --purge -y containerd
+          # Update package lists
+          sudo apt-get update --fix-missing
+          # Install containerd.io without conflicts
+          sudo apt-get install -y containerd.io
+          # Install Docker using the official script
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+          # Enable and start Docker service
+          sudo systemctl enable docker
+          sudo systemctl start docker
 
       - name: Deploy admin-frontend only
         run: |
           ssh -o StrictHostKeyChecking=no alsp@minhnguyen28.workspace.opstech.org << 'EOF'
             cd /home/alsp/intern-admin-frontend
             git pull origin main
+
+            # Rebuild & restart only the admin-frontend service
             sudo docker-compose up -d --build admin-frontend
           EOF
