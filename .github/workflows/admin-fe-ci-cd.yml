@@ -4,7 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - "intern-admin-frontend/**"
+      - "src/**"
+      - "public/**"
+      - "package.json"
+      - "package-lock.json"
+      - "Dockerfile"
       - ".github/workflows/admin-frontend-ci.yml"
 
 jobs:
@@ -24,7 +28,6 @@ jobs:
 
       - name: Install & build
         run: |
-          cd intern-admin-frontend
           npm ci
           npm run build
 
@@ -40,9 +43,9 @@ jobs:
           IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/admin-frontend
           TAG=${{ github.sha }}
           docker build \
-            --file intern-admin-frontend/Dockerfile \
+            --file Dockerfile \
             --tag $IMAGE:$TAG \
-            intern-admin-frontend
+            .
 
       - name: Push Docker image
         run: |
