@@ -32,21 +32,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Install Docker and Fix Dependencies
-        run: |
-          # Remove existing containerd if there's a conflict
-          sudo apt-get remove --purge -y containerd
-          # Update package lists
-          sudo apt-get update --fix-missing
-          # Install containerd.io without conflicts
-          sudo apt-get install -y containerd.io
-          # Install Docker using the official script
-          curl -fsSL https://get.docker.com -o get-docker.sh
-          sudo sh get-docker.sh
-          # Enable and start Docker service
-          sudo systemctl enable docker
-          sudo systemctl start docker
-
       - name: Deploy admin-frontend only
         run: |
           ssh -o StrictHostKeyChecking=no alsp@minhnguyen28.workspace.opstech.org << 'EOF'
