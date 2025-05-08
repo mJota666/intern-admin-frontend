@@ -2,58 +2,72 @@ name: Admin Frontend CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+    paths:
+      - "intern-admin-frontend/**"
 
 jobs:
-  build_and_deploy:
+  build:
     runs-on: ubuntu-latest
-
+    outputs:
+      sha: ${{ steps.commit.outputs.sha }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Cache npm
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('intern-admin-frontend/**/package-lock.json') }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        working-directory: intern-admin-frontend
+        run: npm ci
 
       - name: Run tests
+        working-directory: intern-admin-frontend
         run: npm test
 
-      - name: Build the project
+      - name: Build project
+        working-directory: intern-admin-frontend
         run: npm run build
 
-      - name: Set up SSH agent
+      - name: Capture commit SHA
+        id: commit
+        run: echo "::set-output name=sha::$(git rev-parse --short HEAD)"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code (for path context)
+        uses: actions/checkout@v3
+
+      - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Install Docker and Fix Dependencies
+      - name: Deploy admin-frontend
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          APP_DIR: ${{ secrets.ADMIN_PATH }}
+          GIT_REF: ${{ needs.build.outputs.sha }}
         run: |
-          # Remove existing containerd if there's a conflict
-          sudo apt-get remove --purge -y containerd
-          # Update package lists
-          sudo apt-get update --fix-missing
-          # Install containerd.io without conflicts
-          sudo apt-get install -y containerd.io
-          # Install Docker using the official script (this will install both Docker and dependencies)
-          curl -fsSL https://get.docker.com -o get-docker.sh
-          sudo sh get-docker.sh
-          # Enable and start Docker service
-          sudo systemctl enable docker
-          sudo systemctl start docker
+          ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
+            cd $APP_DIR
+            git fetch origin main
+            git checkout -f $GIT_REF
+            git reset --hard
 
-      - name: Deploy to Droplet
-        run: |
-          ssh -o StrictHostKeyChecking=no alsp@minhnguyen28.workspace.opstech.org << 'EOF'
-            cd /home/alsp/intern-admin-frontend
-            git pull origin main  # Pull the latest changes
-            git log -1  # Show the latest commit
-            sudo docker-compose down -v  # Stop containers and remove volumes
-            sudo docker-compose build --no-cache  # Force rebuild without cache
-            sudo docker-compose up -d  # Start containers with the updated build
+            # Rebuild & restart only the admin-frontend service
+            docker compose up -d --build admin-frontend
           EOF
