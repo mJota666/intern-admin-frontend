@@ -3,8 +3,6 @@ name: Admin Frontend CI/CD Pipeline
 on:
   push:
     branches: [main]
-    paths:
-      - "intern-admin-frontend/**"
 
 jobs:
   build:
