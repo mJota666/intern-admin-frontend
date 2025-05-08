@@ -1,44 +1,84 @@
-name: Admin Frontend CI/CD Pipeline
+name: Admin Frontend CI/CD
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+    paths:
+      - "intern-admin-frontend/**"
+      - ".github/workflows/admin-frontend-ci.yml"
 
 jobs:
-  build_and_deploy:
+  build-and-push:
+    name: Build & Push Image
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: "20"
+          cache: "npm"
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install & build
+        run: |
+          cd intern-admin-frontend
+          npm ci
+          npm run build
 
-      - name: Run tests
-        run: npm test
+      - name: Log in to Docker registry
+        uses: docker/login-action@v2
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build the project
-        run: npm run build
+      - name: Build Docker image
+        run: |
+          IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/admin-frontend
+          TAG=${{ github.sha }}
+          docker build \
+            --file intern-admin-frontend/Dockerfile \
+            --tag $IMAGE:$TAG \
+            intern-admin-frontend
 
-      - name: Set up SSH agent
+      - name: Push Docker image
+        run: |
+          IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/admin-frontend
+          TAG=${{ github.sha }}
+          docker push $IMAGE:$TAG
+
+      - name: Set image tag output
+        id: meta
+        run: echo "::set-output name=tag::${GITHUB_SHA}"
+
+  deploy:
+    name: Deploy to Droplet
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy admin-frontend only
+      - name: Pull & restart admin-frontend
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          ADMIN_PATH: ${{ secrets.ADMIN_PATH }}
+          IMAGE: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/admin-frontend
+          TAG: ${{ needs.build-and-push.outputs.tag }}
         run: |
-          ssh -o StrictHostKeyChecking=no alsp@minhnguyen28.workspace.opstech.org << 'EOF'
-            cd /home/alsp/intern-admin-frontend
-            git pull origin main
+          ssh -o ServerAliveInterval=60 $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
+            cd $ADMIN_PATH
 
-            # Rebuild & restart only the admin-frontend service
-            sudo docker-compose build admin-frontend
+            # Pull the new, CI-built image
+            docker pull $IMAGE:$TAG
+
+            # Swap in only the admin-frontend service
             sudo docker-compose up -d --no-deps admin-frontend
           EOF
