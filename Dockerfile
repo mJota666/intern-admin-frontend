@@ -1,32 +1,25 @@
-# Use an official Node.js image
-FROM node:20
-
-# Set the working directory inside the container
+# ─── Stage 1: Builder ──────────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy package.json and package-lock.json to install dependencies
+# Install dependencies from lockfile
 COPY package*.json ./
+RUN npm ci
 
-# Copy TypeScript configuration files
-COPY tsconfig*.json ./
-
-# Copy the rest of your application files into the container
+# Copy source & build
 COPY . .
-
-# Clean the node_modules if they exist
-RUN rm -rf node_modules
-
-# Install dependencies inside the container
-RUN npm install --legacy-peer-deps
-
-# Build the admin frontend
 RUN npm run build
 
-# Install a simple static file server globally
-RUN npm install -g serve
+# ─── Stage 2: Runtime ──────────────────────────────────────────────────────────
+FROM nginx:stable-alpine
+# Remove default static files
+RUN rm -rf /usr/share/nginx/html/*
 
-# Expose port 8081 for the admin frontend
+# Copy built assets from the builder
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Expose the same port you map in Docker Compose
 EXPOSE 8081
 
-# Command to serve the app using the "serve" command on port 8081
-CMD ["serve", "-s", "dist", "-l", "8081"]
+# Start Nginx in the foreground
+CMD ["nginx", "-g", "daemon off;"]
