@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "intern-admin-frontend/**"
+      - ".github/workflows/admin-frontend-ci.yml"
 
 jobs:
   build_and_deploy:
@@ -17,7 +20,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('intern-admin-frontend/**/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/intern-admin-frontend/package-lock.json') }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -26,16 +29,19 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        working-directory: intern-admin-frontend
-        run: npm ci
+        run: |
+          cd intern-admin-frontend
+          npm ci
 
       - name: Run tests
-        working-directory: intern-admin-frontend
-        run: npm test
+        run: |
+          cd intern-admin-frontend
+          npm test
 
       - name: Build the project
-        working-directory: intern-admin-frontend
-        run: npm run build
+        run: |
+          cd intern-admin-frontend
+          npm run build
 
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
@@ -45,17 +51,7 @@ jobs:
       - name: Deploy admin-frontend only
         run: |
           ssh -o StrictHostKeyChecking=no alsp@minhnguyen28.workspace.opstech.org << 'EOF'
-            # ensure Docker Compose v2 plugin is installed
-            if ! docker compose version > /dev/null 2>&1; then
-              sudo apt-get update
-              sudo apt-get install -y docker-compose-plugin
-            fi
-
             cd /home/alsp/intern-admin-frontend
-            git fetch origin main
-            git checkout -f main
-            git reset --hard
-
-            # Rebuild & restart only the admin-frontend service
-            sudo docker compose-up -d --build admin-frontend
+            git pull origin main
+            sudo docker-compose up -d --build admin-frontend
           EOF
